@@ -1,6 +1,6 @@
 import unittest
 import sys
-from googleproductsearch.ProductSearch import ProductSearch, ProductCategories
+from visionproductsearch.ProductSearch import ProductSearch, ProductCategories
 from random import randint
 import os
 
@@ -8,6 +8,7 @@ LOCATION = "us-west1"
 CREDS = "key.json"
 PROJECTID = "mismatch"
 BUCKET = "mismatch-test"
+OLD_PRODUCT_SET = "dalescloset_test"
 
 
 class ProductSearchTest(unittest.TestCase):
@@ -17,6 +18,7 @@ class ProductSearchTest(unittest.TestCase):
         self.productSet = self.productSearch.createProductSet(self.setName)
         self.productName = "fakeProduct-" + str(randint(0, 100000))
         self.product = self.productSearch.createProduct(self.productName, ProductCategories.APPAREL)
+        self.oldProductSet = self.productSearch.getProductSet(OLD_PRODUCT_SET)
 
     def test_cantCreateEmptySet(self):
         try:
@@ -33,7 +35,6 @@ class ProductSearchTest(unittest.TestCase):
             assert pSet.name 
             assert pSet.productSetPath
             assert pSet.productSearch
-            print(pSet.name)
         assert any([pSet.name == self.setName for pSet in productSets])
 
     def test_deleteProductSet(self):
@@ -52,11 +53,16 @@ class ProductSearchTest(unittest.TestCase):
     def test_createProduct(self):
         productName = "fakeProduct-" + str(randint(0, 100000))
         product = self.productSearch.createProduct(productName, ProductCategories.APPAREL)
-        assert product.productId
+        assert product.productPath
         products = self.productSearch.listProducts()
-        assert any([product.productId == x.productId for x in products])
+        assert any([product.productPath == x.productPath for x in products])
         product.delete()
     
+    def test_addAndListProductToSet(self):
+        self.productSet.addProduct(self.product)
+        addedProducts = self.productSet.listProducts()
+        assert any([x.productPath == self.product.productPath for x in addedProducts])
+
     def test_ReferenceImages(self):
         imgPath = os.path.join(os.path.dirname(__file__), './data/skirt.jpg')
         imgName = self.product.addReferenceImage(imgPath)
@@ -64,8 +70,17 @@ class ProductSearchTest(unittest.TestCase):
         assert len(images)
         assert all(images)
         url = self.product.getReferenceImageUrl(imgName)
-        print(url)
         self.product.deleteReferenceImage(imgName)
+    
+    def test_ProductSetIndexTime(self):
+        assert self.oldProductSet.indexTime().seconds
+        assert self.oldProductSet.indexTime().nanos
+    
+    def test_ProductSetSearch(self):
+        imgPath = os.path.join(os.path.dirname(__file__), './data/skirt.jpg')
+        res = self.oldProductSet.search(ProductCategories.APPAREL, file_path=imgPath)
+        for item in res:
+            print(item['product'].getReferenceImageUrl(item['image']))
 
     def tearDown(self):
         """Call after every test case."""
