@@ -63,9 +63,9 @@ class ProductSearchTest(unittest.TestCase):
         images = self.product.listReferenceImages()
         assert len(images)
         assert all(images)
+        url = self.product.getReferenceImageUrl(imgName)
+        print(url)
         self.product.deleteReferenceImage(imgName)
-        print(images)
-
 
     def tearDown(self):
         """Call after every test case."""

@@ -54,6 +54,7 @@ class ProductSearch:
             bucket = search.bucket
             blob = bucket.blob(imageId if not search.prefix else os.path.join(search.prefix, imageId))
             blob.upload_from_filename(filename)
+            blob.make_public()
 
             gcs_uri = os.path.join("gs://", bucket.name, blob.name)
 
@@ -74,8 +75,20 @@ class ProductSearch:
             images = self.productSearch.productClient.list_reference_images(parent=self.productPath)
             return [x.name for x in images]
         
+        def _getReferenceImageBlobName(self, name):
+            refImage = self.productSearch.productClient.get_reference_image(name)
+            return '/'.join(refImage.uri.split("//")[1].split("/")[1:])
+
+        def getReferenceImageUrl(self, name):
+            bucket = self.productSearch.bucket
+            blobName = self._getReferenceImageBlobName(name)
+            return bucket.blob(blobName).public_url
+
         def deleteReferenceImage(self, name):
+            blobName = self._getReferenceImageBlobName(name)
             self.productSearch.productClient.delete_reference_image(name=name)
+            self.productSearch.bucket.blob(blobName).delete()
+            
 
 
     def createProduct(self, product_id, category, display_name=None, labels=[]):
