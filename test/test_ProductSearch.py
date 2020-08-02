@@ -19,10 +19,10 @@ from random import randint
 import os
 
 LOCATION = "us-west1"
-CREDS = "key.json"
-PROJECTID = "mismatch"
-BUCKET = "mismatch-test"
-OLD_PRODUCT_SET = "dalescloset_test"
+CREDS =  "PATH_TO_CREDS_FILE"
+PROJECTID = "YOUR_GCP_PROJECT_ID"
+BUCKET = "STORAGE_BUCKET_NAME_FOR_STORING_IMAGES"
+OLD_PRODUCT_SET = "NAME_OF_EXISTING_PRODUCT_SET"
 
 
 class ProductSearchTest(unittest.TestCase):
