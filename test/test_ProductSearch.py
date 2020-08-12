@@ -14,7 +14,7 @@
 
 import unittest
 import sys
-from visionproductsearch.ProductSearch import ProductSearch, ProductCategories
+from pyvisionproductsearch.ProductSearch import ProductSearch, ProductCategories
 from random import randint
 import os
 
