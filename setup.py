@@ -1,8 +1,8 @@
 from distutils.core import setup
 setup(
   name = 'pyvisionproductsearch',
-  packages = ['PYVISIONPRODUCTSEARCH'],
-  version = '0.1',
+  packages = ['pyvisionproductsearch'],
+  version = '0.2',
   license='apache-2.0',
   description = 'Python Wrapper around the Google Vision Product Search API',
   author = 'Dale Markowitz',
