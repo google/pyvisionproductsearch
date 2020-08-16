@@ -10,7 +10,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 setup(
     name='pyvisionproductsearch',
     packages=['pyvisionproductsearch'],
-    version='0.2',
+    version='0.3',
     license='apache-2.0',
     description='Python Wrapper around the Google Vision Product Search API',
     long_description=long_description,
