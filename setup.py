@@ -19,7 +19,7 @@ setup(
     author_email='dale@dalemarkowitz.com',
     # Provide either the link to your github or to your website
     url='https://github.com/google/pyvisionproductsearch',
-    download_url='https://github.com/google/pyvisionproductsearch/archive/v0.1.tar.gz',
+    download_url='https://github.com/google/pyvisionproductsearch/archive/v0.3.tar.gz',
     # Keywords that define your package best
     keywords=['google cloud', 'product search', 'vision', 'machine learning'],
     install_requires=[            # I get to this in a second
