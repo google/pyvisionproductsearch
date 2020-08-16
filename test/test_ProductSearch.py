@@ -13,31 +13,40 @@
 # limitations under the License.
 
 import unittest
-import sys
 from pyvisionproductsearch.ProductSearch import ProductSearch, ProductCategories
+from google.cloud.vision import types
 from random import randint
 import os
 
+# LOCATION = "us-west1"
+# CREDS =  "PATH_TO_CREDS_FILE"
+# PROJECTID = "YOUR_GCP_PROJECT_ID"
+# BUCKET = "STORAGE_BUCKET_NAME_FOR_STORING_IMAGES"
+# OLD_PRODUCT_SET = "NAME_OF_EXISTING_PRODUCT_SET"
+
+PROJECTID = "mismatch"
 LOCATION = "us-west1"
-CREDS =  "PATH_TO_CREDS_FILE"
-PROJECTID = "YOUR_GCP_PROJECT_ID"
-BUCKET = "STORAGE_BUCKET_NAME_FOR_STORING_IMAGES"
-OLD_PRODUCT_SET = "NAME_OF_EXISTING_PRODUCT_SET"
+BUCKET = "mismatch-test"
+CREDS = "key.json"
+#CLOSET_DIR = "/Users/dalequark/codestuffs/making_with_ml/mismatch_temp/closet"
+OLD_PRODUCT_SET = "dales_closet_v0"
+PRODUCT_SET = "test_set"
 
 
 class ProductSearchTest(unittest.TestCase):
     def setUp(self):
-        self.productSearch = ProductSearch(PROJECTID, LOCATION, CREDS, BUCKET)
+        self.productSearch = ProductSearch(PROJECTID, CREDS, BUCKET)
         self.setName = "test-" + str(randint(0, 10000))
         self.productSet = self.productSearch.createProductSet(self.setName)
         self.productName = "fakeProduct-" + str(randint(0, 100000))
-        self.product = self.productSearch.createProduct(self.productName, ProductCategories.APPAREL)
+        self.product = self.productSearch.createProduct(
+            self.productName, ProductCategories.APPAREL)
         self.oldProductSet = self.productSearch.getProductSet(OLD_PRODUCT_SET)
 
     def test_cantCreateEmptySet(self):
         try:
             self.productSearch.createProductSet("")
-        except :
+        except:
             return
         # Fail if the craeteProductSet method didn't throw an error
         assert False
@@ -46,7 +55,7 @@ class ProductSearchTest(unittest.TestCase):
         productSets = list(self.productSearch.listProductSets())
 
         for pSet in productSets:
-            assert pSet.name 
+            assert pSet.name
             assert pSet.productSetPath
             assert pSet.productSearch
         assert any([pSet.name == self.setName for pSet in productSets])
@@ -63,36 +72,57 @@ class ProductSearchTest(unittest.TestCase):
             return
         # Check that you can't delete a set twice
         assert False
-    
+
     def test_createProduct(self):
         productName = "fakeProduct-" + str(randint(0, 100000))
-        product = self.productSearch.createProduct(productName, ProductCategories.APPAREL)
-        assert product.productPath
-        products = self.productSearch.listProducts()
-        assert any([product.productPath == x.productPath for x in products])
+        product = self.productSearch.createProduct(
+            productName, ProductCategories.APPAREL, labels={"type": "skirt"})
+        assert product.productId
+        foundProduct = self.productSearch.getProduct(product.productId)
+        assert foundProduct.productId == product.productId
+        assert foundProduct.category
         product.delete()
-    
+
     def test_addAndListProductToSet(self):
         self.productSet.addProduct(self.product)
         addedProducts = self.productSet.listProducts()
-        assert any([x.productPath == self.product.productPath for x in addedProducts])
+        assert any(
+            [x.productId == self.product.productId for x in addedProducts])
 
     def test_ReferenceImages(self):
         imgPath = os.path.join(os.path.dirname(__file__), './data/skirt.jpg')
-        imgName = self.product.addReferenceImage(imgPath)
+
+        boundingPoly = types.BoundingPoly(
+            normalized_vertices=[
+                types.NormalizedVertex(
+                    x=0.26328492164611816,
+                    y=0.2978992462158203),
+                types.NormalizedVertex(
+                    x=0.7166883945465088,
+                    y=0.2978992462158203),
+                types.NormalizedVertex(
+                    x=0.7166883945465088,
+                    y=0.9973958134651184),
+                types.NormalizedVertex(
+                    x=0.26328492164611816,
+                    y=0.9973958134651184),
+            ])
+
+        imgName = self.product.addReferenceImage(imgPath, bounding_polys=[boundingPoly])
         images = self.product.listReferenceImages()
         assert len(images)
         assert all(images)
-        url = self.product.getReferenceImageUrl(imgName)
+        assert self.product.getReferenceImageUrl(imgName)
         self.product.deleteReferenceImage(imgName)
-    
+
     def test_ProductSetIndexTime(self):
         assert self.oldProductSet.indexTime().seconds
         assert self.oldProductSet.indexTime().nanos
-    
+
     def test_ProductSetSearch(self):
         imgPath = os.path.join(os.path.dirname(__file__), './data/skirt.jpg')
-        res = self.oldProductSet.search(ProductCategories.APPAREL, file_path=imgPath)
+        res = self.oldProductSet.search(
+            ProductCategories.APPAREL, file_path=imgPath)
         for item in res:
             print(item['product'].getReferenceImageUrl(item['image']))
 
