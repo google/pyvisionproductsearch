@@ -13,4 +13,5 @@
 # limitations under the License.
 
 from pyvisionproductsearch.ProductSearch import ProductCategories, ProductSearch
+from pyvisionproductsearch.Vision import detectLabels, detectObjects
 

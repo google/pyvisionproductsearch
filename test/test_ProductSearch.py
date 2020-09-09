@@ -29,7 +29,7 @@ LOCATION = "us-west1"
 BUCKET = "mismatch-test"
 CREDS = "key.json"
 #CLOSET_DIR = "/Users/dalequark/codestuffs/making_with_ml/mismatch_temp/closet"
-OLD_PRODUCT_SET = "dales_closet_v0"
+OLD_PRODUCT_SET = "dales_closet_v2"
 PRODUCT_SET = "test_set"
 
 
@@ -81,6 +81,7 @@ class ProductSearchTest(unittest.TestCase):
         foundProduct = self.productSearch.getProduct(product.productId)
         assert foundProduct.productId == product.productId
         assert foundProduct.category
+        assert foundProduct.labels["type"] == "skirt"
         product.delete()
 
     def test_addAndListProductToSet(self):
@@ -121,10 +122,14 @@ class ProductSearchTest(unittest.TestCase):
 
     def test_ProductSetSearch(self):
         imgPath = os.path.join(os.path.dirname(__file__), './data/skirt.jpg')
-        res = self.oldProductSet.search(
+        results = self.oldProductSet.search(
             ProductCategories.APPAREL, file_path=imgPath)
-        for item in res:
-            print(item['product'].getReferenceImageUrl(item['image']))
+        for item in results:
+            label = item["label"]
+            results = item["matches"]
+            print("The label was " + label)
+            assert label == "Skirt"
+            assert len(results)
 
     def tearDown(self):
         """Call after every test case."""

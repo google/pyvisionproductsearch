@@ -97,11 +97,13 @@ class ProductSearch:
             Returns:
                 ProductSearch.Product: Product constructed from res
             """
+            # Make sure that product_labels is in dictionary format
+            productLabels = {x.key: x.value for x in res.product_labels}
             return ProductSearch.Product(product_search,
                                          res.name.split('/')[-1],
                                          res.product_category,
                                          res.display_name,
-                                         res.product_labels,
+                                         productLabels,
                                          res.name)
 
         def _checkDeleted(self):
@@ -217,7 +219,8 @@ class ProductSearch:
 
         product_labels = []
         for key in labels:
-            product_labels.append(vision.types.Product.KeyValue(key=key, value=labels[key]))
+            product_labels.append(
+                vision.types.Product.KeyValue(key=key, value=labels[key]))
 
         product = vision.types.Product(
             display_name=display_name,
@@ -347,18 +350,35 @@ class ProductSearch:
 
             image_context = vision.types.ImageContext(
                 product_search_params=product_search_params)
+
             # Search products similar to the image.
 
-            results = self.productSearch.imageClient.product_search(
-                image, image_context=image_context).product_search_results.results
-            response = []
-            for result in results:
-                response.append({
-                    'product': ProductSearch.Product._fromResponse(self.productSearch, result.product),
-                    'score': result.score,
-                    'image': result.image
+            # Results are grouped by the item (i.e. multiple clothing in pic, multiple results)
+            products_matches = self.productSearch.imageClient.product_search(
+                image, image_context=image_context).product_search_results.product_grouped_results
+            responses = []
+            # TODO: this is probably not right
+            for product_matches in products_matches:
+                # Take the most confident label as the label for this bounding box
+                if not product_matches.object_annotations:
+                    continue
+                product_label = max(product_matches.object_annotations, key=lambda x: x.score)
+                if product_label.score < 0.5:
+                    # If we aren't confident in the object we're matching, ignore it
+                    continue
+                response = []
+                for match in product_matches.results:
+                    response.append({
+                        'product': ProductSearch.Product._fromResponse(self.productSearch, match.product),
+                        'score': match.score,
+                        'image': match.image
+                    })
+                responses.append({
+                    "label": product_label.name,
+                    "matches": response,
+                    'boundingBox': product_matches.bounding_poly.normalized_vertices
                 })
-            return response
+            return responses
 
     def createProductSet(self, name, display_name=None):
         '''
