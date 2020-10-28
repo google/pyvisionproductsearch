@@ -23,15 +23,7 @@ import os
 # PROJECTID = "YOUR_GCP_PROJECT_ID"
 # BUCKET = "STORAGE_BUCKET_NAME_FOR_STORING_IMAGES"
 # OLD_PRODUCT_SET = "NAME_OF_EXISTING_PRODUCT_SET"
-
-PROJECTID = "mismatch"
-LOCATION = "us-west1"
-BUCKET = "mismatch-test"
-CREDS = "key.json"
-#CLOSET_DIR = "/Users/dalequark/codestuffs/making_with_ml/mismatch_temp/closet"
-OLD_PRODUCT_SET = "dales_closet_v2"
-PRODUCT_SET = "test_set"
-
+# PRODUCT SET = "NAME OF PRODUCT SET TO CREATE"
 
 class ProductSearchTest(unittest.TestCase):
     def setUp(self):
@@ -48,7 +40,7 @@ class ProductSearchTest(unittest.TestCase):
             self.productSearch.createProductSet("")
         except:
             return
-        # Fail if the craeteProductSet method didn't throw an error
+        # Fail if the createProductSet method didn't throw an error
         assert False
 
     def test_listProductSets(self):
@@ -127,8 +119,7 @@ class ProductSearchTest(unittest.TestCase):
         for item in results:
             label = item["label"]
             results = item["matches"]
-            print("The label was " + label)
-            assert label == "Skirt"
+            assert len(label)
             assert len(results)
 
     def tearDown(self):
