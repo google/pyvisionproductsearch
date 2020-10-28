@@ -17,9 +17,6 @@ from google.cloud import storage
 from uuid import uuid4 as uuid
 import os
 
-# Todo: add "get product" function
-
-
 class ProductCategories:
     HOMEGOODS = "homegoods-v2"
     APPAREL = "apparel-v2"
@@ -247,7 +244,7 @@ class ProductSearch:
             list: List of ProductSearch.Product
         """
         response = self.productClient.list_products(parent=self.locationPath)
-        return [ProductSearch.Product._fromResponse(self, x) for x in response]
+        return [ProductSearch.Product._fromResponse(self.productSearch, x) for x in response]
 
     # ProductSet
 
@@ -326,7 +323,7 @@ class ProductSearch:
             self._checkDeleted()
             response = self.productSearch.productClient.list_products_in_product_set(
                 name=self.productSetPath)
-            return [ProductSearch.Product._fromResponse(self, x) for x in response]
+            return [ProductSearch.Product._fromResponse(self.productSearch, x) for x in response]
 
         def search(self, product_category, file_path=None, image_uri=None, filter=None):
             self._checkDeleted()
@@ -357,14 +354,16 @@ class ProductSearch:
             products_matches = self.productSearch.imageClient.product_search(
                 image, image_context=image_context).product_search_results.product_grouped_results
             responses = []
-            # TODO: this is probably not right
+
             for product_matches in products_matches:
-                # Take the most confident label as the label for this bounding box
                 if not product_matches.object_annotations:
                     continue
+
+                # Take the most confident label as the label for this bounding box
                 product_label = max(product_matches.object_annotations, key=lambda x: x.score)
+
+                # If we aren't confident in the object we're matching, ignore it
                 if product_label.score < 0.5:
-                    # If we aren't confident in the object we're matching, ignore it
                     continue
                 response = []
                 for match in product_matches.results:
@@ -374,6 +373,7 @@ class ProductSearch:
                         'image': match.image
                     })
                 responses.append({
+                    "score": product_label.score,
                     "label": product_label.name,
                     "matches": response,
                     'boundingBox': product_matches.bounding_poly.normalized_vertices
