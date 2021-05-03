@@ -12,18 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
-from pyvisionproductsearch.ProductSearch import ProductSearch, ProductCategories
-from google.cloud.vision import types
-from random import randint
 import os
+import unittest
+from random import randint
+
+from google.cloud.vision import types
+
+from pyvisionproductsearch.ProductSearch import ProductSearch, ProductCategories
 
 # LOCATION = "us-west1"
-# CREDS =  "PATH_TO_CREDS_FILE"
-# PROJECTID = "YOUR_GCP_PROJECT_ID"
-# BUCKET = "STORAGE_BUCKET_NAME_FOR_STORING_IMAGES"
-# OLD_PRODUCT_SET = "NAME_OF_EXISTING_PRODUCT_SET"
-# PRODUCT SET = "NAME OF PRODUCT SET TO CREATE"
+PROJECTID = "YOUR_GCP_PROJECT_ID"
+CREDS = "PATH_TO_CREDS_FILE"
+BUCKET = "STORAGE_BUCKET_NAME_FOR_STORING_IMAGES"
+OLD_PRODUCT_SET = "NAME_OF_EXISTING_PRODUCT_SET"
+# PRODUCT_SET = "NAME OF PRODUCT SET TO CREATE"
+
 
 class ProductSearchTest(unittest.TestCase):
     def setUp(self):
@@ -31,8 +34,7 @@ class ProductSearchTest(unittest.TestCase):
         self.setName = "test-" + str(randint(0, 10000))
         self.productSet = self.productSearch.createProductSet(self.setName)
         self.productName = "fakeProduct-" + str(randint(0, 100000))
-        self.product = self.productSearch.createProduct(
-            self.productName, ProductCategories.APPAREL)
+        self.product = self.productSearch.createProduct(self.productName, ProductCategories.APPAREL)
         self.oldProductSet = self.productSearch.getProductSet(OLD_PRODUCT_SET)
 
     def test_cantCreateEmptySet(self):
@@ -50,6 +52,7 @@ class ProductSearchTest(unittest.TestCase):
             assert pSet.name
             assert pSet.productSetPath
             assert pSet.productSearch
+
         assert any([pSet.name == self.setName for pSet in productSets])
 
     def test_deleteProductSet(self):
@@ -67,20 +70,20 @@ class ProductSearchTest(unittest.TestCase):
 
     def test_createProduct(self):
         productName = "fakeProduct-" + str(randint(0, 100000))
-        product = self.productSearch.createProduct(
-            productName, ProductCategories.APPAREL, labels={"type": "skirt"})
+        product = self.productSearch.createProduct(productName, ProductCategories.APPAREL, labels={"type": "skirt"})
         assert product.productId
+
         foundProduct = self.productSearch.getProduct(product.productId)
         assert foundProduct.productId == product.productId
         assert foundProduct.category
         assert foundProduct.labels["type"] == "skirt"
+
         product.delete()
 
     def test_addAndListProductToSet(self):
         self.productSet.addProduct(self.product)
         addedProducts = self.productSet.listProducts()
-        assert any(
-            [x.productId == self.product.productId for x in addedProducts])
+        assert any([x.productId == self.product.productId for x in addedProducts])
 
     def test_ReferenceImages(self):
         imgPath = os.path.join(os.path.dirname(__file__), './data/skirt.jpg')
@@ -114,8 +117,8 @@ class ProductSearchTest(unittest.TestCase):
 
     def test_ProductSetSearch(self):
         imgPath = os.path.join(os.path.dirname(__file__), './data/skirt.jpg')
-        results = self.oldProductSet.search(
-            ProductCategories.APPAREL, file_path=imgPath)
+        results = self.oldProductSet.search(ProductCategories.APPAREL, file_path=imgPath)
+
         for item in results:
             label = item["label"]
             results = item["matches"]
