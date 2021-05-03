@@ -24,7 +24,7 @@ for img in product.listReferenceImages():
     print(img)
 
 # Add a product to a product set
-product.addProduct(product)
+productSet.addProduct(product)
 
 # List all products in a product set
 for p in productSet.listProducts():
