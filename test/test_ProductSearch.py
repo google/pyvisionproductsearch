@@ -20,12 +20,12 @@ from google.cloud.vision import types
 
 from pyvisionproductsearch.ProductSearch import ProductSearch, ProductCategories
 
-LOCATION = "us-west1"
-CREDS = "PATH_TO_CREDS_FILE"
+# LOCATION = "us-west1"
 PROJECTID = "YOUR_GCP_PROJECT_ID"
+CREDS = "PATH_TO_CREDS_FILE"
 BUCKET = "STORAGE_BUCKET_NAME_FOR_STORING_IMAGES"
 OLD_PRODUCT_SET = "NAME_OF_EXISTING_PRODUCT_SET"
-PRODUCT_SET = "NAME OF PRODUCT SET TO CREATE"
+# PRODUCT_SET = "NAME OF PRODUCT SET TO CREATE"
 
 
 class ProductSearchTest(unittest.TestCase):
