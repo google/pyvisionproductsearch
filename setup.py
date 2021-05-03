@@ -1,6 +1,7 @@
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
 import pathlib
+
+from setuptools import setup
 
 here = pathlib.Path(__file__).parent.resolve()
 
@@ -22,7 +23,7 @@ setup(
     download_url='https://github.com/google/pyvisionproductsearch/archive/v0.4.tar.gz',
     # Keywords that define your package best
     keywords=['google cloud', 'product search', 'vision', 'machine learning'],
-    install_requires=[            # I get to this in a second
+    install_requires=[  # I get to this in a second
         'google-cloud-vision',
         'google-cloud-storage',
         'google-cloud-core',
@@ -34,5 +35,7 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 )

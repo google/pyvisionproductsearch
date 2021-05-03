@@ -4,7 +4,7 @@ This library is a Python wrapper around the [Cloud Vision Product Search Libary]
 ## Getting Started
 
 ```
-from visionproductsearch.ProductSearch import ProductSearch, ProductCategories
+from pyvisionproductsearch.ProductSearch import ProductSearch, ProductCategories
 
 # Initialize ProductSearch with your credentials
 

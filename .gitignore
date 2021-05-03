@@ -4,3 +4,4 @@ __pycache__/
 *key*
 venv
 .vscode
+.idea/
